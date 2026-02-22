@@ -1,0 +1,27 @@
+{
+  "name": "@erwinkn/excel-interpreter-ts",
+  "version": "0.1.0",
+  "description": "TypeScript library for evaluating Excel formulas and building expressions",
+  "private": false,
+  "main": "dist/index.js",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "test": "node --test",
+    "build": "tsc -p tsconfig.json"
+  },
+  "keywords": [
+    "excel",
+    "formula",
+    "expression"
+  ],
+  "author": "Erwin Kuhn",
+  "license": "MIT",
+  "type": "module",
+  "types": "dist/index.d.ts",
+  "devDependencies": {
+    "@types/node": "^25.3.0",
+    "typescript": "^5.9.3"
+  }
+}
