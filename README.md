@@ -2,8 +2,8 @@
 
 Monorepo for Excel formula tooling in Python and TypeScript:
 
-- `python/excel_interpreter_py`: Python library for workbook-aware formula evaluation and expression building.
-- `ts/excel-interpreter-ts`: TypeScript library for formula evaluation and expression building.
+- `packages/python`: Python library for workbook-aware formula evaluation and expression building.
+- `packages/ts`: TypeScript library for formula evaluation and expression building.
 
 ## Goal
 
@@ -18,14 +18,14 @@ Provide shared, cross-language capabilities for:
 Python:
 
 ```bash
-cd python/excel_interpreter_py
+cd packages/python
 uv sync
 ```
 
 TypeScript:
 
 ```bash
-cd ts/excel-interpreter-ts
-npm install
-npm run build
+cd packages/ts
+corepack pnpm install
+corepack pnpm build
 ```

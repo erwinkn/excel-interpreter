@@ -1,0 +1,94 @@
+name: Release
+
+on:
+  release:
+    types:
+      - published
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish-npm:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Install dependencies
+        working-directory: packages/ts
+        run: pnpm install --frozen-lockfile
+
+      - name: Run tests
+        working-directory: packages/ts
+        run: pnpm test
+
+      - name: Build package
+        working-directory: packages/ts
+        run: pnpm build
+
+      - name: Verify tag matches package version
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          TAG_VERSION="${RELEASE_TAG#v}"
+          PACKAGE_VERSION="$(node -e "const fs=require('node:fs');console.log(JSON.parse(fs.readFileSync('packages/ts/package.json','utf8')).version)")"
+          if [ "$TAG_VERSION" != "$PACKAGE_VERSION" ]; then
+            echo "Release tag ($RELEASE_TAG) does not match packages/ts/package.json version ($PACKAGE_VERSION)"
+            exit 1
+          fi
+
+      - name: Publish to npm (OIDC trusted publishing)
+        working-directory: packages/ts
+        run: npm publish --provenance --access public
+
+  publish-pypi:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v6
+
+      - name: Verify tag matches package version
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          TAG_VERSION="${RELEASE_TAG#v}"
+          PYPROJECT_VERSION="$(python - <<'PY'
+          import tomllib
+          from pathlib import Path
+
+          pyproject = tomllib.loads(Path("packages/python/pyproject.toml").read_text())
+          print(pyproject["project"]["version"])
+          PY
+          )"
+          if [ "$TAG_VERSION" != "$PYPROJECT_VERSION" ]; then
+            echo "Release tag ($RELEASE_TAG) does not match packages/python/pyproject.toml version ($PYPROJECT_VERSION)"
+            exit 1
+          fi
+
+      - name: Build package
+        working-directory: packages/python
+        run: uv build
+
+      - name: Publish to PyPI (OIDC trusted publishing)
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: packages/python/dist
