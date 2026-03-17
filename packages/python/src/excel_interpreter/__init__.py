@@ -21,6 +21,12 @@ from .expression import (
 )
 from .functions import EXCEL_FUNCTIONS, ExcelFunctions, excel_fn
 from .interpreter import ExcelInterpreter
+from .native import (
+    NativeCoreStatus,
+    get_native_core_status,
+    native_add,
+    native_greeting,
+)
 from .parser import ExcelParser, parse_formula
 from .reader import ExcelReader
 from .tokenizer import ExcelTokenizer, Token, TokenType
@@ -63,6 +69,7 @@ __all__ = [
     "ExcelWriter",
     "ExprOrValue",
     "Expression",
+    "NativeCoreStatus",
     "OpenpyxlCell",
     "Range",
     "Row",
@@ -81,10 +88,13 @@ __all__ = [
     "evaluate_expression",
     "excel_fn",
     "fill",
+    "get_native_core_status",
     "get_cell_column",
     "get_cell_row",
     "get_or_replace_sheet",
     "number_format",
+    "native_add",
+    "native_greeting",
     "parse_formula",
     "pretty_print_ast",
     "pretty_print_formula",

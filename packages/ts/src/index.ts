@@ -1,4 +1,5 @@
 export type ExcelScalar = string | number | boolean | null;
+export { getNativeBindingStatus, nativeAdd, nativeGreeting } from "./native";
 
 export interface ExcelContext {
   getCell(address: string, sheet?: string): ExcelScalar;

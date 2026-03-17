@@ -1,31 +1,62 @@
 # excel-interpreter
 
-Monorepo for Excel formula tooling in Python and TypeScript:
+Monorepo for Excel formula tooling with a native Zig core and language-specific wrappers.
 
-- `packages/python`: Python library for workbook-aware formula evaluation and expression building.
-- `packages/ts`: TypeScript library for formula evaluation and expression building.
+Packages:
 
-## Goal
+- `packages/core`: Zig core for parsing, expression IR, evaluation, and the shared C ABI.
+- `packages/python`: Python library and future native wrapper around the Zig core.
+- `packages/ts`: TypeScript package and future Node binding around the Zig core.
+- `tests/corpus`: shared deterministic regression fixtures.
 
-Provide shared, cross-language capabilities for:
+## Architecture
 
-- Parsing and evaluating Excel formulas in workbook context.
-- Programmatically building valid Excel expressions.
-- Extensible function/runtime implementations for custom usage.
+The current Python implementation remains the semantic reference while the Zig core is built out.
 
-## Quick start
+Target split:
 
-Python:
+- Zig owns parsing, IR, evaluation, simplification, and the C ABI.
+- Python owns `openpyxl` integration and Python-native ergonomics.
+- TypeScript owns the JS/TS-facing API and Node binding.
+- Windows-only fuzzing compares desktop Excel against the native core and promotes failures into explicit regression fixtures.
 
-```bash
-cd packages/python
-uv sync
+## Build
+
+Native core:
+
+```powershell
+zig build
+zig build test
 ```
 
-TypeScript:
+Python package:
 
-```bash
+```powershell
+cd packages/python
+uv sync
+uv run --with pytest pytest tests
+```
+
+TypeScript package:
+
+```powershell
 cd packages/ts
 corepack pnpm install
 corepack pnpm build
 ```
+
+## Orchestration
+
+A root `justfile` is included for common tasks:
+
+- `just --list`
+- `just build-core`
+- `just test-core`
+- `just test-python`
+- `just smoke-python-native`
+- `just smoke-ts-native`
+- `just smoke-native`
+- `just build-ts`
+- `just fuzz-excel`
+
+The `just` command runner is not required to work on the repo, but it is the intended top-level task interface.
